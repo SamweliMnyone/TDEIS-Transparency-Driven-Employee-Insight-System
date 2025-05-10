@@ -160,21 +160,28 @@
                                                 <td>{{ $project->scope }}</td>
                                                 <td>{{ $project->estimated_time ? $project->estimated_time . ' Months' : 'N/A' }}</td>
                                                 <td>{{ $project->estimated_cost ? number_format($project->estimated_cost, 2) . ' TZS' : 'N/A' }}</td>
-                                                <td>
-                                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#assignEmployeesModal{{ $project->id }}">
-                                                        <i class="fa fa-users"></i> Assign
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editProjectModal{{ $project->id }}">
-                                                        <i class="fa fa-pencil"></i> Edit
-                                                    </button>
-                                                    <form action="{{ route('pm.projects.destroy', $project->id) }}" method="POST" class="d-inline delete-form">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="button" class="btn btn-sm btn-danger delete-button" data-project-id="{{ $project->id }}">
-                                                            <i class="fa fa-trash"></i> Delete
+
+                                                <td class="text-nowrap">
+                                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                                        <button type="button" class="btn btn-sm " data-toggle="modal" data-target="#assignEmployeesModal{{ $project->id }}" title="Assign Employees">
+                                                            <i class="fa fa-users"></i>
                                                         </button>
-                                                    </form>
+
+                                                        <button type="button" class="btn btn-sm " data-toggle="modal" data-target="#editProjectModal{{ $project->id }}" title="Edit Project">
+                                                            <i class="fa fa-pencil"></i>
+                                                        </button>
+
+                                                        <form action="{{ route('pm.projects.destroy', $project->id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm " title="Delete Project">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </td>
+
+
                                             </tr>
 
                                             {{-- Edit Project Modal --}}
@@ -221,82 +228,88 @@
                                                 </div>
                                             </div>
 
-<!-- Assign Employees Modal -->
-<div class="modal fade" id="assignEmployeesModal{{ $project->id }}" tabindex="-1" role="dialog" aria-labelledby="assignEmployeesModalLabel{{ $project->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Assign Employee to: {{ $project->name }}</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span>&times;</span>
-                </button>
-            </div>
-            <form action="{{ route('assign.employee', $project->id) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="employee_id">Select Employee:</label>
-                        <select name="employee_id" id="employee_id" class="form-control" required>
-                            <option value="">-- Select Employee --</option>
-                            @foreach($employees as $employee)
-                                <option value="{{ $employee->id }}"
-                                    data-skills="{{ $employee->skills->map(function($skill) {
-                                        return [
-                                            'id' => $skill->id,
-                                            'skill_name' => $skill->skill_name,
-                                            'years_of_experience' => $skill->pivot->years_of_experience,
-                                            'match_percentage' => min(100, $skill->pivot->years_of_experience * 20)
-                                        ];
-                                    })->toJson() }}">
-                                    {{ $employee->name }} - {{ $employee->position }}
-                                    @if($employee->skills->isNotEmpty())
-                                        @php
-                                            $bestSkill = $employee->skills->sortByDesc(function($skill) {
-                                                return $skill->pivot->years_of_experience;
-                                            })->first();
-                                        @endphp
-                                        (Best skill: {{ $bestSkill->skill_name }} - {{ min(100, $bestSkill->pivot->years_of_experience * 20) }}%)
-                                    @endif
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                                        <!-- Assign Employees Modal -->
+                                        <div class="modal fade" id="assignEmployeesModal{{ $project->id }}" tabindex="-1" role="dialog" aria-labelledby="assignEmployeesModalLabel{{ $project->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title">Assign Employee to: {{ $project->name }}</h5>
+                                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                                            <span>&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <form action="{{ route('assign.employee', $project->id) }}" method="POST">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <div class="form-group">
+                                                                <label for="employee_id">Select Employee:</label>
+                                                                <select name="employee_id" id="employee_id" class="form-control" required>
+                                                                    <option value="">-- Select Employee --</option>
+                                                                    @foreach($employees as $employee)
+                                                                        <option value="{{ $employee->id }}"
+                                                                            data-skills="{{ $employee->skills->map(function($skill) {
+                                                                                return [
+                                                                                    'id' => $skill->id,
+                                                                                    'skill_name' => $skill->skill_name,
+                                                                                    'years_of_experience' => $skill->pivot->years_of_experience,
+                                                                                    'match_percentage' => min(100, $skill->pivot->years_of_experience * 20)
+                                                                                ];
+                                                                            })->toJson() }}">
+                                                                            {{ $employee->name }} - {{ $employee->position }}
+                                                                            @if($employee->skills->isNotEmpty())
+                                                                                @php
+                                                                                    $bestSkill = $employee->skills->sortByDesc(function($skill) {
+                                                                                        return $skill->pivot->years_of_experience;
+                                                                                    })->first();
+                                                                                @endphp
+                                                                                (Best skill: {{ $bestSkill->skill_name }} - {{ min(100, $bestSkill->pivot->years_of_experience * 20) }}%)
+                                                                            @endif
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
 
-                    <div id="employeeSkillsContainer" class="mt-4" style="display: none;">
-                        <h5>Employee Skills:</h5>
-                        <div id="skillsList" class="mb-3"></div>
+                                                            <div id="employeeSkillsContainer" class="mt-4" style="display: none;">
+                                                                <h5>Note:</h5>
+                                                                <div id="skillsList" class="mb-3"></div>
 
-                        <div class="form-group">
-                            <label for="required_skill">Select Required Skill for Project:</label>
-                            <select name="required_skill" id="required_skill" class="form-control" required>
-                                <option value="">-- Select Skill --</option>
-                                @foreach($skills as $skill)
-                                    <option value="{{ $skill->id }}">{{ $skill->skill_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                                                                <div class="form-group">
+                                                                    <label for="required_skill">Select Required Skill for Project:</label>
+                                                                    <select name="required_skill" id="required_skill" class="form-control" required>
+                                                                        <option value="">-- Select Skill --</option>
+                                                                        @foreach($skills->unique('skill_name') as $skill)
+                                                                            <option value="{{ $skill->id }}">{{ $skill->skill_name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
 
-                        <div class="form-group">
-                            <label for="years_of_experience_needed">Years of Experience Needed:</label>
-                            <input type="number" name="years_of_experience_needed" id="years_of_experience_needed" class="form-control" min="0" placeholder="Enter required years of experience">
-                        </div>
-                    </div>
-                </div>
+                                                            </div>
+                                                        </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Assign Employee</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-primary">Assign</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         @empty
                                             <tr><td colspan="6" class="text-center">No projects found.</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="text-muted">
+                                        Showing {{ $projects->firstItem() }} to {{ $projects->lastItem() }} of {{ $projects->total() }}
+                                        entries
+                                    </div>
+                                    <div>
+                                        {!! $projects->appends(['search' => request('search')])->onEachSide(1)->links('pagination::bootstrap-4') !!}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -405,7 +418,7 @@
 
                     container.show();
                 } else {
-                    skillsList.html('<div class="alert alert-warning">This employee has no skills recorded.</div>');
+                    skillsList.html('<div class="alert alert-warning">This employee skills will be recorded!!</div>');
                     container.show();
                 }
             });

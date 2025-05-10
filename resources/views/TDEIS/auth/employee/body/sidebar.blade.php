@@ -71,7 +71,7 @@
     </li>
 
     <li>
-        <a href="{{ url('notifications') }}" class="ajax-link">
+        <a href="{{ route('employee.assignments')}}" class="ajax-link">
             <i class="menu-icon fa fa-bell"></i>Notifications
         </a>
     </li>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="Transparency-Driven Employee Insight System">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -80,12 +80,17 @@
     @include('TDEIS.auth.HR.body.footer')
 
   <!-- Scripts -->
+
+
+
   <script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jquery-match-height@0.7.2/dist/jquery.matchHeight.min.js"></script>
   <script src="{{ asset('templates/assets/js/main.js')}}"></script>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
   $(document).ready(function () {
       // Intercept all anchor clicks with .ajax-link class
@@ -126,6 +131,14 @@
       };
   });
 </script>
+<Script>
+    $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+</Script>
 
 </body>
 </html>

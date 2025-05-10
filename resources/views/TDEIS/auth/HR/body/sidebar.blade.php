@@ -45,32 +45,18 @@
                     </a>
                 </li>
 
-                <!-- Employees -->
                 <li>
                     <a href="{{ route('hr.assignments') }}">
-                        <i class="menu-icon fa fa-users"></i> Employees
+                        <i class="menu-icon fa fa-user"></i> Hiring Confimation
+                    </a>
+                </li>
+                <!-- Employees -->
+                <li>
+                    <a href="{{ route('pm.employee&skills') }}">
+                        <i class="menu-icon fa fa-users"></i> Employees & Skills
                     </a>
                 </li>
 
-                <!-- Reports -->
-                <li>
-                    <a href="">
-                        <i class="menu-icon fa fa-chart-bar"></i> Reports
-                    </a>
-                </li>
-
-                {{-- <!-- Notifications -->
-                <li>
-                    <a href="{{ route('hr.notifications') }}"
-                       @if(Route::is('hr.notifications')) style="font-weight:bold;color:#3490dc;" @endif>
-                        <i class="menu-icon fa fa-bell"></i> Notifications
-                        @if(auth()->user()->unreadNotifications->count() > 0)
-                            <span class="badge badge-danger">
-                                {{ auth()->user()->unreadNotifications->count() }}
-                            </span>
-                        @endif
-                    </a>
-                </li> --}}
 
                 <!-- Profile -->
                 <li>

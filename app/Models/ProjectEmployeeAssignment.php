@@ -33,6 +33,11 @@ class ProjectEmployeeAssignment extends Model
         return $this->belongsTo(Skill::class, 'required_skill');
     }
 
+    public function user()
+{
+    return $this->belongsTo(User::class, 'user_id'); // Make sure 'user_id' is the correct foreign key
+}
+
 
 
 

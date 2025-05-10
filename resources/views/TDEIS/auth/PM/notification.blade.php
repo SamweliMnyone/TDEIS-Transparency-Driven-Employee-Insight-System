@@ -4,30 +4,17 @@
     <title>TDEIS | Project Assignments</title>
 
     <style>
-        .assignment-table {
-            font-size: 14px;
+        .badge-pending {
+            background-color: #ffc107;
+            color: #212529;
         }
-        .table-responsive {
-            overflow-x: auto;
+        .badge-approved {
+            background-color: #28a745;
+            color: white;
         }
-        .status-pending {
-            background-color: #fff3cd;
-        }
-        .status-approved {
-            background-color: #d4edda;
-        }
-        .status-rejected {
-            background-color: #f8d7da;
-        }
-        .action-btns .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-        }
-        .filter-section {
-            background-color: #f8f9fa;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
+        .badge-rejected {
+            background-color: #dc3545;
+            color: white;
         }
     </style>
 
@@ -46,7 +33,7 @@
                         <div class="page-title">
                             <ol class="breadcrumb text-right">
                                 <li class="breadcrumb-item"><a href="{{ route('pm.dashboard') }}">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Project Assignments</li>
+                                <li class="breadcrumb-item active">Notifications</li>
                             </ol>
                         </div>
                     </div>
@@ -57,122 +44,84 @@
 
     <div class="content">
         <div class="animated fadeIn">
+
+            {{-- Success Message --}}
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            {{-- Error Message --}}
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
             <div class="row">
-                <div class="col-lg-12">
+                <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <strong class="card-title">All Project Assignments</strong>
+                            <strong class="card-title">Employee Assignments</strong>
                         </div>
                         <div class="card-body">
-                            <div class="filter-section">
-                                <form method="GET" action="">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-3">
-                                            <label for="project_id">Project</label>
-                                            <select class="form-control" id="project_id" name="project_id">
-                                                <option value="">All Projects</option>
-                                                @foreach($projects as $project)
-                                                    <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
-                                                        {{ $project->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <label for="employee_id">Employee</label>
-                                            <select class="form-control" id="employee_id" name="employee_id">
-                                                <option value="">All Employees</option>
-                                                @foreach($employees as $employee)
-                                                    <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
-                                                        {{ $employee->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="form-group col-md-3">
-                                            <label for="status">Status</label>
-                                            <select class="form-control" id="status" name="status">
-                                                <option value="">All Statuses</option>
-                                                <option value="Pending HR Approval" {{ request('status') == 'Pending HR Approval' ? 'selected' : '' }}>Pending</option>
-                                                <option value="Approved" {{ request('status') == 'Approved' ? 'selected' : '' }}>Approved</option>
-                                                <option value="Rejected" {{ request('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group col-md-3 align-self-end">
-                                            <button type="submit" class="btn btn-primary">Filter</button>
-                                            <a href="{{ route('pm.assignments.index') }}" class="btn btn-secondary">Reset</a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-
                             <div class="table-responsive">
-                                <table class="table table-bordered assignment-table">
-                                    <thead class="thead-light">
+                                <table class="table table-striped table-bordered datatable">
+                                    <thead>
                                         <tr>
-                                            <th>ID</th>
+                                            <th>#</th>
                                             <th>Project</th>
                                             <th>Employee</th>
                                             <th>Required Skill</th>
+                                            <th>Proficiency Level</th>
                                             <th>Years Needed</th>
                                             <th>Status</th>
-                                            <th>Created At</th>
-                                            <th>Updated At</th>
-                                            <th>Actions</th>
+                                            <th>Assigned On</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($assignments as $assignment)
-                                            <tr class="status-{{ strtolower(str_replace(' ', '-', $assignment->assignment_status)) }}">
-                                                <td>{{ $assignment->id }}</td>
+                                        @forelse($assignments as $index => $assignment)
+                                            <tr>
+                                                <td>{{ $index + $assignments->firstItem() }}</td>
                                                 <td>{{ $assignment->project->name ?? 'N/A' }}</td>
                                                 <td>{{ $assignment->employee->name ?? 'N/A' }}</td>
-                                                <td>{{ $assignment->requiredSkill->name ?? 'N/A' }}</td>
-                                                <td>{{ $assignment->years_of_experience_needed ?? 'N/A' }}</td>
+                                                <td>{{ $assignment->requiredSkill->skill_name ?? 'N/A' }}</td>
+                                                <td>{{ $assignment->proficiency_level ?? 'Not Specified' }}</td>
+                                                <td>{{ $assignment->years_of_experience_needed ?? 'Not Specified' }}</td>
                                                 <td>
-                                                    @if($assignment->assignment_status == 'Pending HR Approval')
-                                                        <span class="badge badge-warning">{{ $assignment->assignment_status }}</span>
-                                                    @elseif($assignment->assignment_status == 'Approved')
-                                                        <span class="badge badge-success">{{ $assignment->assignment_status }}</span>
-                                                    @else
-                                                        <span class="badge badge-danger">{{ $assignment->assignment_status }}</span>
-                                                    @endif
+                                                    <span class="badge badge-{{ strtolower($assignment->assignment_status) }}">
+                                                        {{ $assignment->assignment_status }}
+                                                    </span>
                                                 </td>
                                                 <td>{{ $assignment->created_at->format('Y-m-d H:i') }}</td>
-                                                <td>{{ $assignment->updated_at->format('Y-m-d H:i') }}</td>
-                                                <td class="action-btns">
-                                                    @if($assignment->assignment_status == 'Pending HR Approval')
-                                                        <form action="{{ route('pm.assignments.approve', $assignment->id) }}" method="POST" class="d-inline">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="submit" class="btn btn-success btn-sm" title="Approve">
-                                                                <i class="fa fa-check"></i>
-                                                            </button>
-                                                        </form>
-                                                        <form action="{{ route('pm.assignments.reject', $assignment->id) }}" method="POST" class="d-inline">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="submit" class="btn btn-danger btn-sm" title="Reject">
-                                                                <i class="fa fa-times"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                    <form action="{{ route('pm.assignments.destroy', $assignment->id) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" title="Delete" onclick="return confirm('Are you sure you want to delete this assignment?')">
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </td>
                                             </tr>
-                                        @endforeach
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center">No notifications available</td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
+
                             </div>
 
-                            <div class="mt-3">
-                                {{ $assignments->links() }}
+
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    Showing {{ $assignments->firstItem() }} to {{ $assignments->lastItem() }} of {{ $assignments->total() }}
+                                    entries
+                                </div>
+                                <div>
+                                    {!! $assignments->appends(['search' => request('search')])->onEachSide(1)->links('pagination::bootstrap-4') !!}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -181,19 +130,96 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <script>
-            $(document).ready(function() {
-                toastr.success('{{ session('success') }}');
-            });
-        </script>
-    @endif
+    @foreach($assignments as $assignment)
+    <!-- Edit Assignment Modal -->
+    <div class="modal fade" id="editAssignmentModal{{ $assignment->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{{ route('pm.assignments.update', $assignment->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Assignment</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="assignment_status" class="form-control">
+                                <option value="Pending HR Approval" {{ $assignment->assignment_status == 'Pending HR Approval' ? 'selected' : '' }}>Pending HR Approval</option>
+                                <option value="Approved" {{ $assignment->assignment_status == 'Approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="Rejected" {{ $assignment->assignment_status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Years of Experience Needed</label>
+                            <input type="number" name="years_of_experience_needed" class="form-control" value="{{ $assignment->years_of_experience_needed }}">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endforeach
 
-    @if(session('error'))
-        <script>
-            $(document).ready(function() {
-                toastr.error('{{ session('error') }}');
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('.datatable').DataTable({
+                "pageLength": 25,
+                "responsive": true,
+                "paging": false, // Disable DataTables pagination since we're using Laravel pagination
+                "info": false,
+                "searching": true
             });
-        </script>
-    @endif
+
+            // SweetAlert for success/error messages
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
+
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ session('error') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
+
+            // Delete confirmation
+            $('.delete-form').on('submit', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
+            });
+        });
+    </script>
+    @endpush
 @endsection

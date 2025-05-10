@@ -2,10 +2,35 @@
 
 @section('yes')
 <title>TDEIS | Permission</title>
+
+<div class="breadcrumbs">
+    <div class="breadcrumbs-inner">
+        <div class="row m-0">
+            <div class="col-sm-4">
+                <div class="page-header float-left">
+                    <div class="page-title">
+                        <h1>Role Management</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="page-header float-right">
+                    <div class="page-title">
+                        <ol class="breadcrumb text-right">
+                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="#">Role Management</a></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="mb-4">Role Management</h2>
+            <h2 class="mb-4"></h2>
 
             <div class="card shadow">
                 <div class="card-header">
@@ -15,7 +40,7 @@
                                 <div class="input-group">
                                     <input type="text" name="search" class="form-control" placeholder="Search users..." value="{{ request('search') }}">
                                     <div class="input-group-append">
-                                        <button class="btn btn-primary" type="submit">Search</button>
+                                        <button class="btn btn-secondary" type="submit">Search</button>
                                     </div>
                                 </div>
                             </form>

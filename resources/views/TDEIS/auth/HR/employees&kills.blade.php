@@ -1,4 +1,4 @@
-@extends('TDEIS.auth.PM.body.app')
+@extends('TDEIS.auth.HR.body.app')
 
 @section('yes')
     <title>TDEIS | Employee Dashboard</title>

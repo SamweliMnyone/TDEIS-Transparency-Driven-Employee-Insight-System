@@ -20,7 +20,7 @@ class AdminController extends BaseProfileController
     {
         $userCounts = [
             'admins' => User::where('role', 'ADMIN')->count(),
-            'employees' => User::where('role', 'employee')->count(),
+            'employees' => User::where('role', 'Employee')->count(),
             'pms' => User::where('role', 'PM')->count(),
             'hrs' => User::where('role', 'HR')->count()
         ];
@@ -36,10 +36,10 @@ class AdminController extends BaseProfileController
         if (!in_array($userType, $validTypes)) {
             abort(404, 'Invalid user type specified');
         }
-    
+
         // 3. Process the request (search, pagination, etc.)
         $search = $request->input('search');
-        
+
         $users = User::where('role', $userType)
             ->when($search, function($query) use ($search) {
                 return $query->where('name', 'like', '%'.$search.'%')
@@ -47,10 +47,10 @@ class AdminController extends BaseProfileController
             })
             ->orderBy('name')
             ->paginate(10);
-    
+
         // 4. Get permissions (only if we passed the initial checks)
         $allPermissions = Permission::orderBy('name')->get();
-    
+
         // 5. Return response
         if ($request->ajax()) {
             return response()->json([
@@ -64,7 +64,7 @@ class AdminController extends BaseProfileController
                 'pagination' => $users->appends(['search' => $search])
             ]);
         }
-    
+
         // 6. Return full view with all permission checks
         return view('TDEIS.auth.admin.manage_users', [
             'users' => $users,
@@ -80,7 +80,7 @@ class AdminController extends BaseProfileController
         $user = User::findOrFail($id);
         $originalData = $user->toArray();
         $data = $request->all();
-    
+
         // Validation rules
         $rules = [
             'name' => 'required|string|max:255',
@@ -91,33 +91,33 @@ class AdminController extends BaseProfileController
             'gender' => 'nullable|in:Male,Female',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
-    
+
         $validator = Validator::make($data, $rules);
-    
+
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
-    
+
         // Check if any data was actually changed
         $changes = false;
         foreach ($data as $key => $value) {
             if (!array_key_exists($key, $originalData)) {
                 continue;
             }
-            
+
             if ($originalData[$key] != $value) {
                 $changes = true;
                 break;
             }
         }
-    
+
         if (!$changes && !$request->hasFile('profile_picture')) {
             return redirect()->route('manage.users', ['type' => $user->role])
                 ->with('warning', 'No modifications were made to the user data.');
         }
-    
+
         if ($request->hasFile('profile_picture')) {
             // Delete old profile picture if exists
             if ($user->profile_picture) {
@@ -126,32 +126,32 @@ class AdminController extends BaseProfileController
             $path = $request->file('profile_picture')->store('profile_pictures', 'public');
             $data['profile_picture'] = $path;
         }
-    
+
         $user->update($data);
-    
+
         // Redirect back to the same user type page
         return redirect()->route('manage.users', ['type' => $user->role])
             ->with('success', ucfirst($user->role).' updated successfully!');
     }
-    
+
     public function deleteUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
         $userType = $user->role;
-    
+
         // Delete related records first
         DB::table('permission_user')->where('user_id', $user->id)->delete();
-        
+
         // Delete profile picture if exists
         if ($user->profile_picture) {
             \Storage::delete($user->profile_picture);
         }
-    
+
         $user->delete();
-    
+
         // Get redirect path from hidden input or default to user type list
         $redirectTo = $request->input('redirect_to') ?? route('manage.users', ['type' => strtolower($userType)]);
-    
+
         return redirect($redirectTo)
             ->with('success', ucfirst($userType).' deleted successfully!');
     }
@@ -168,18 +168,18 @@ class AdminController extends BaseProfileController
             'gender' => 'nullable|in:Male,Female',
             'role' => 'required|in:Employee,HR,PM,ADMIN' // Now passed from the form
         ]);
-    
+
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
-    
+
         $data = $request->except(['profile_picture']);
         $data['password'] = bcrypt($request->password);
-        
+
         User::create($data);
-    
+
         return redirect()->route('manage.users', ['type' => $request->role])
             ->with('success', ucfirst($request->role).' created successfully!');
     }

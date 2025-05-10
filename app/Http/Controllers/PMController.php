@@ -16,34 +16,47 @@ class PMController extends BaseProfileController
     protected $viewPrefix = 'PM';
     protected $routePrefix = 'pm';
 
-
     public function dashboard()
     {
-        // ... other dashboard logic ...
-
         $user = auth()->user()->load('skills');
 
         $employees = User::where('id', '!=', auth()->id())
             ->where('role', 'Employee')
             ->with([
                 'skills' => function ($query) {
-                    $query->whereNotNull('skill_name'); // Only users with skills
+                    $query->whereNotNull('skill_name');
                 }
             ])
             ->get();
-        // Fetch the projects from the database.  Adjust this query as needed.
-        $projects = Project::all(); //  Get all projects.  You might want to filter this.
 
-        // Pass the $projects variable to the view.
-        return view('TDEIS.auth.PM.dashboard', compact('projects','employees','user')); //  Make sure 'projects' is included here
+        $projects = Project::all();
+
+        // Get top 5 experts
+        $topExperts = User::where('role', 'Employee')
+            ->with(['skills' => function($query) {
+                $query->where('proficiency', 'Advanced')
+                      ->orWhere('proficiency', 'Expert')
+                      ->orderBy('years_of_experience', 'desc');
+            }])
+            ->get()
+            ->sortByDesc(function($user) {
+                return $user->skills->count();
+            })
+            ->take(5);
+
+        // Get the count of active assignments
+        $activeAssignmentCount = \App\Models\ProjectEmployeeAssignment::where('assignment_status', 'Active')->count();
+
+        return view('TDEIS.auth.PM.dashboard', compact('projects', 'employees', 'user', 'topExperts', 'activeAssignmentCount'));
     }
+
 
 
     public function projects(Request $request)
     {
         $projects = Project::where('project_manager_id', auth()->id())
             ->latest()
-            ->paginate(10);
+            ->paginate(perPage: 10);
 
         $skills = Skill::orderBy('skill_name')->get();
 
@@ -87,8 +100,7 @@ class PMController extends BaseProfileController
         $skillMatch = 0;
         if ($employee->skills->isNotEmpty()) {
             $skill = $employee->skills->first();
-            // Calculate match percentage based on years of experience
-            $skillMatch = min(100, $skill->pivot->years_of_experience * 20); // 5 years = 100%
+
         }
 
         // Create the assignment
@@ -286,9 +298,9 @@ class PMController extends BaseProfileController
                 'requiredSkill'
             ])
             ->orderBy('created_at', 'desc')
-            ->paginate(25);
+            ->paginate(10);
 
-        return view('TDEIS.auth.PM.assignment', compact('assignments'));
+        return view('TDEIS.auth.PM.notification', compact('assignments'));
     }
 
     public function updateAssignment(Request $request, ProjectEmployeeAssignment $assignment)

@@ -49,8 +49,38 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('pm.assignments') }}"><i class="menu-icon fa fa-bell"></i>Notifications</a>
+                    <a href="{{ route('pm.assignments') }}" class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="menu-icon fa fa-bell"></i>
+                            <span class="ms-2">Notifications</span>
+                        </div>
+                        <span id="notificationCount" class="notification-count" data-count="{{ $totalAssignmentCount ?? 0 }}">
+                            0
+                        </span>
+                    </a>
                 </li>
+
+
+
+                <style>
+                    .notification-count {
+                        background-color: #dc3545;
+                        color: white;
+                        border-radius: 50%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 24px;
+                        height: 24px;
+                        padding: 0 6px;
+                        font-size: 0.8em;
+                        font-weight: bold;
+                        transition: all 0.2s ease-in-out;
+                    }
+                    </style>
+
+
+
 
                 <li>
                     <a href="{{ route('pm.dashboard.profile') }}"><i class="menu-icon fa fa-user"></i>My Profile</a>
@@ -69,4 +99,23 @@
         </div>
     </nav>
 </aside>
-<!-- /#left-panel -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const countEl = document.getElementById('notificationCount');
+        const finalCount = parseInt(countEl.getAttribute('data-count'));
+        let current = 0;
+        const speed = 20; // Faster animation
+
+        const counter = setInterval(() => {
+            current++;
+            countEl.innerText = current;
+
+            // Adjust size dynamically (optional)
+            countEl.style.minWidth = (current.toString().length > 2) ? '30px' : '24px';
+
+            if (current >= finalCount) {
+                clearInterval(counter);
+            }
+        }, speed);
+    });
+    </script>

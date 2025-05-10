@@ -11,7 +11,7 @@ class CheckRole
     public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return redirect()->route('login');
         }
@@ -22,9 +22,9 @@ class CheckRole
                 case 'ADMIN':
                     return redirect()->route('admin.dashboard');
                 case 'HR':
-                    return redirect()->route('HR.dashboard');
+                    return redirect()->route('hr.dashboard');
                 case 'PM':
-                    return redirect()->route('PM.dashboard');
+                    return redirect()->route('pm.dashboard');
                 case 'Employee':
                     return redirect()->route('employee.dashboard');
                 default:

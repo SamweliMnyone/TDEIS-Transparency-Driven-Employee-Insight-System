@@ -1,7 +1,7 @@
-@extends('TDEIS.auth.PM.body.app')
+@extends('TDEIS.auth.HR.body.app')
 
 @section('yes')
-    <title>TDEIS | Project Assignments</title>
+    <title>TDEIS | Employee Confimation</title>
 
     <style>
         .badge-pending {
@@ -33,7 +33,7 @@
                         <div class="page-title">
                             <ol class="breadcrumb text-right">
                                 <li class="breadcrumb-item"><a href="{{ route('pm.dashboard') }}">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Assignments</li>
+                                <li class="breadcrumb-item active">Hiring</li>
                             </ol>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <strong class="card-title">Employee Assignments</strong>
+                            <strong style="font-weight: bold" class="card-title">Confirmation of Employment</strong>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -80,8 +80,6 @@
                                             <th>Project</th>
                                             <th>Employee</th>
                                             <th>Required Skill</th>
-                                            <th>Proficiency Level</th>
-                                            <th>Years Needed</th>
                                             <th>Status</th>
                                             <th>Assigned On</th>
                                             <th>Actions</th>
@@ -94,8 +92,7 @@
                                             <td>{{ $assignment->project->name ?? 'N/A' }}</td>
                                             <td>{{ $assignment->employee->name ?? 'N/A' }}</td>
                                             <td>{{ $assignment->requiredSkill->skill_name ?? 'N/A' }}</td>
-                                            <td>{{ $assignment->proficiency_level ?? 'Not Specified' }}</td>
-                                            <td>{{ $assignment->years_of_experience_needed ?? 'Not Specified' }}</td>
+
                                             <td>
                                                 <span class="badge badge-{{ strtolower($assignment->assignment_status) }}">
                                                     {{ $assignment->assignment_status }}
@@ -103,49 +100,35 @@
                                             </td>
                                             <td>{{ $assignment->created_at->format('Y-m-d H:i') }}</td>
                                             <td>
-                                                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#editAssignmentModal{{ $assignment->id }}">
-                                                    <i class="fa fa-edit"></i> Edit
-                                                </button>
-                                                <form action="{{ route('pm.assignments.destroy', $assignment->id) }}" method="POST" style="display:inline" class="delete-form">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">
-                                                        <i class="fa fa-trash"></i> Delete
+                                                <div class="d-flex align-items-center" style="gap: 8px;">
+                                                    <button class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#editAssignmentModal{{ $assignment->id }}">
+                                                        <i class="fa fa-edit"></i> Confirm
                                                     </button>
-                                                </form>
+
+                                                    <form action="{{ route('hr.assignments.destroy', $assignment->id) }}" method="POST" style="display:inline" class="delete-form">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                            <i class="fa fa-trash"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+
                                             </td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="d-flex justify-content-center mt-3">
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination">
-                                        {{-- Previous Page Link --}}
-                                        @if ($assignments->onFirstPage())
-                                            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-                                        @else
-                                            <li class="page-item"><a class="page-link" href="{{ $assignments->previousPageUrl() }}" rel="prev">&laquo;</a></li>
-                                        @endif
 
-                                        {{-- Pagination Elements --}}
-                                        @foreach ($assignments->getUrlRange(1, $assignments->lastPage()) as $page => $url)
-                                            @if ($page == $assignments->currentPage())
-                                                <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
-                                            @else
-                                                <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
-                                            @endif
-                                        @endforeach
-
-                                        {{-- Next Page Link --}}
-                                        @if ($assignments->hasMorePages())
-                                            <li class="page-item"><a class="page-link" href="{{ $assignments->nextPageUrl() }}" rel="next">&raquo;</a></li>
-                                        @else
-                                            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-                                        @endif
-                                    </ul>
-                                </nav>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="text-muted">
+                                    Showing {{ $assignments->firstItem() }} to {{ $assignments->lastItem() }} of {{ $assignments->total() }}
+                                    entries
+                                </div>
+                                <div>
+                                    {!! $assignments->appends(['search' => request('search')])->onEachSide(1)->links('pagination::bootstrap-4') !!}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -159,11 +142,11 @@
     <div class="modal fade" id="editAssignmentModal{{ $assignment->id }}" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form action="{{ route('pm.assignments.update', $assignment->id) }}" method="POST">
+                <form action="{{ route('hr.assignments.update', $assignment->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="modal-header">
-                        <h5 class="modal-title">Edit Assignment</h5>
+                        <h5 style="font-weight: bold" class="modal-title">Confirmation of Employment</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -172,78 +155,48 @@
                         <div class="form-group">
                             <label>Status</label>
                             <select name="assignment_status" class="form-control">
-                                <option value="Pending HR Approval" {{ $assignment->assignment_status == 'Pending HR Approval' ? 'selected' : '' }}>Pending HR Approval</option>
                                 <option value="Approved" {{ $assignment->assignment_status == 'Approved' ? 'selected' : '' }}>Approved</option>
                                 <option value="Rejected" {{ $assignment->assignment_status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Years of Experience Needed</label>
-                            <input type="number" name="years_of_experience_needed" class="form-control" value="{{ $assignment->years_of_experience_needed }}">
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" class="btn btn-primary">Apply</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    @endforeach
+@endforeach
 
-    @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        $(document).ready(function() {
-            // Initialize DataTable
-            $('.datatable').DataTable({
-                "pageLength": 25,
-                "responsive": true,
-                "paging": false, // Disable DataTables pagination since we're using Laravel pagination
-                "info": false,
-                "searching": true
-            });
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            // SweetAlert for success/error messages
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '{{ session('success') }}',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            @endif
-
-            @if(session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: '{{ session('error') }}',
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            @endif
-
-            // Delete confirmation
-            $('.delete-form').on('submit', function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
-                    }
-                });
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Delete confirmation
+    const deleteButtons = document.querySelectorAll('.delete-button');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const projectId = this.dataset.projectId;
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                showConfirmButton: true // ✅ correct placement
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = this.closest('.delete-form');
+                    form.submit();
+                }
             });
         });
-    </script>
-    @endpush
+    });
+});
+</script>
 @endsection

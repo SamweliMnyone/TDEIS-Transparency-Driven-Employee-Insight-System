@@ -3,10 +3,35 @@
 @section('yes')
 <title>TDEIS | Roles</title>
 
+
+<div class="breadcrumbs">
+    <div class="breadcrumbs-inner">
+        <div class="row m-0">
+            <div class="col-sm-4">
+                <div class="page-header float-left">
+                    <div class="page-title">
+                        <h1>Permission Management</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <div class="page-header float-right">
+                    <div class="page-title">
+                        <ol class="breadcrumb text-right">
+                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="#">Permission Management</a></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="mb-4">Permission Management</h2>
+            <h2 class="mb-4"></h2>
 
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">

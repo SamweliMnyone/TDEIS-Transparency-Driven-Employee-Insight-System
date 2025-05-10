@@ -57,6 +57,7 @@ Route::middleware(['auth.user', 'session.timeout', 'no-cache', 'role:ADMIN'])->p
 Route::middleware(['auth.user', 'session.timeout', 'no-cache', 'role:HR'])->prefix('hr')->group(function () {
     // Dashboard
     Route::get('/dashboard', [HRController::class, 'dashboard'])->name('hr.dashboard');
+    Route::get('/employee&skills', [HRController::class, 'employeeskills'])->name('pm.employee&skills');
     Route::get('/dashboard/profile', [HRController::class, 'profile'])->name('hr.dashboard.profile');
     Route::put('/dashboard/profile/update', [HRController::class, 'updateProfile'])->name('hr.profile.update');
     Route::put('/dashboard/profile/update-password', [HRController::class, 'updatePassword'])->name('hr.profile.update-password');
@@ -64,15 +65,15 @@ Route::middleware(['auth.user', 'session.timeout', 'no-cache', 'role:HR'])->pref
 
 
 
-    Route::get('/assignments', [HRController::class, 'assignments'])->name('hr.assignments');
+    Route::get('/assignments', [HRController::class, 'assignments2'])->name('hr.assignments');
 
     // Add these to your existing PM routes group
     Route::put('/assignments/{assignment}', [HRController::class, 'updateAssignment'])->name('hr.assignments.update');
     Route::delete('/assignments/{assignment}', [HRController::class, 'destroyAssignment'])->name('hr.assignments.destroy');
 
-        // // Notifications
-        // Route::get('/notifications', [HRController::class, 'notifications'])->name('hr.notifications');
 
+// Reports
+Route::match(['get', 'post'], '/hr/reports/generate', [HRController::class, 'generateReport'])->name('hr.report.generate');
 
 });
 
@@ -97,6 +98,10 @@ Route::middleware(['auth.user', 'session.timeout', 'no-cache', 'role:PM'])->pref
     // Add these to your existing PM routes group
     Route::put('/pm/assignments/{assignment}', [PMController::class, 'updateAssignment'])->name('pm.assignments.update');
     Route::delete('/pm/assignments/{assignment}', [PMController::class, 'destroyAssignment'])->name('pm.assignments.destroy');
+
+
+
+
 });
 
 // Employee Routes
@@ -112,19 +117,19 @@ Route::middleware(['auth.user', 'session.timeout', 'no-cache', 'role:Employee'])
     Route::delete('/skills/{skill}', [EmployeeController::class, 'destroySkill'])->name('employee.skills.destroy');
 
 
+    Route::get('/employee/assignments', [EmployeeController::class, 'myAssignments'])->name('employee.assignments');
+Route::get('/employee/assignments/{assignment}/download/{type}', [EmployeeController::class, 'downloadNotification'])
+    ->name('employee.assignments.download-notification')
+    ->where('type', 'approval|rejection');
+
 
     // Resource route for contributions
-    Route::resource('contributions', ContributionController::class)
-        ->middleware('auth'); // Require authentication
+    Route::resource('contributions', ContributionController::class);
 
     // If you want named routes that match your original HTML
-    Route::get('add-contribution', [ContributionController::class, 'create'])
-        ->name('contributions.create')
-        ->middleware('auth');
+    Route::get('add-contribution', [ContributionController::class, 'create'])->name('employee.contributions.create');
 
-    Route::get('view-contributions', [ContributionController::class, 'index'])
-        ->name('contributions.index')
-        ->middleware('auth');
+    Route::get('view-contributions', [ContributionController::class, 'index'])->name('employee.contributions.index');
 });
 
 // Common logout route for all authenticated users

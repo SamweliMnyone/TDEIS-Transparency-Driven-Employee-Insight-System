@@ -172,35 +172,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Delete Modal -->
-                                            <div class="modal fade" id="deleteModal{{ $contribution->id }}" tabindex="-1"
-                                                aria-labelledby="deleteModalLabel{{ $contribution->id }}" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title"
-                                                                id="deleteModalLabel{{ $contribution->id }}">Confirm Deletion
-                                                            </h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Are you sure you want to delete "{{ $contribution->title }}"?
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-bs-dismiss="modal">Cancel</button>
-                                                            <form
-                                                                action="{{ route('contributions.destroy', $contribution->id) }}"
-                                                                method="POST" class="d-inline">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger">Delete</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+
                                         @empty
                                             <tr>
                                                 <td colspan="6" class="text-center">No contributions found.</td>

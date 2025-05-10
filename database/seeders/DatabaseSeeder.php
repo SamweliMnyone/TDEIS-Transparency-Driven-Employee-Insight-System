@@ -9,6 +9,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\User;
 use App\Models\Skill;
+use App\Models\Project; // Add this line
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,6 +23,7 @@ class DatabaseSeeder extends Seeder
         DB::table('model_has_roles')->truncate();
         DB::table('role_has_permissions')->truncate();
         DB::table('skills')->truncate();
+        DB::table('projects')->truncate(); // Add this line
         DB::table('users')->truncate();
         DB::table('permissions')->truncate();
         DB::table('roles')->truncate();
@@ -38,28 +40,16 @@ class DatabaseSeeder extends Seeder
         $permissions = [
             // System permissions
             'access_dashboard',
-            'manage_system',
+
 
             // User management permissions
             'view_users',
             'create_users',
             'edit_users',
             'delete_users',
-            'manage_roles',
-            'manage_permissions',
-
-            // Content permissions
             'create_content',
-            'edit_content',
-            'delete_content',
-            'publish_content',
-
-            // HR specific permissions
-            'manage_hr',
-            'view_salaries',
-
             // Project management permissions
-            'manage_projects',
+
             'assign_tasks',
         ];
 
@@ -83,17 +73,14 @@ class DatabaseSeeder extends Seeder
                     'view_users',
                     'create_users',
                     'edit_users',
-                    'manage_hr',
-                    'view_salaries'
+
                 ]
             ],
             'PM' => [
                 'permissions' => [
                     'access_dashboard',
-                    'manage_projects',
                     'assign_tasks',
-                    'create_content',
-                    'edit_content'
+
                 ]
             ],
             'Employee' => [
@@ -118,31 +105,59 @@ class DatabaseSeeder extends Seeder
         // ======================
         // Create specific known users first with default password 'password'
         $admin = User::factory()->create([
-            'name'  => 'System Admin',
+            'name' => 'System Admin',
             'email' => 'admin@example.com',
-            'role'  => 'ADMIN',
+            'role' => 'ADMIN',
             'password' => bcrypt('password'),
+            'phone' => '+255712345678', // Tanzania phone number
+            'address' => 'Dar es Salaam, Tanzania'
         ]);
         $admin->assignRole('ADMIN');
 
         $hrManager = User::factory()->create([
-            'name'  => 'HR Manager',
+            'name' => 'HR Manager',
             'email' => 'hr@example.com',
-            'role'  => 'HR',
+            'role' => 'HR',
             'password' => bcrypt('password'),
+            'phone' => '+255712345679', // Tanzania phone number
+            'address' => 'Arusha, Tanzania'
         ]);
         $hrManager->assignRole('HR');
 
         $projectManager = User::factory()->create([
-            'name'  => 'Project Manager',
+            'name' => 'Project Manager',
             'email' => 'pm@example.com',
-            'role'  => 'PM',
+            'role' => 'PM',
             'password' => bcrypt('password'),
+            'phone' => '+255712345670', // Tanzania phone number
+            'address' => 'Mwanza, Tanzania'
         ]);
         $projectManager->assignRole('PM');
 
-        // Create random users
-        $users = User::factory(97)->create();
+        $employee = User::factory()->create([
+            'name' => 'Employee',
+            'email' => 'employee@example.com',
+            'role' => 'Employee',
+            'password' => bcrypt('password'),
+            'phone' => '+255712345670', // Tanzania phone number
+            'address' => 'Mwanza, Tanzania'
+        ]);
+        $employee->assignRole('PM');
+
+        // Create random users with Tanzania details
+        $users = User::factory(97)->create([
+            'phone' => function () {
+                return '+2557' . rand(10, 99) . rand(100000, 999999);
+            },
+            'address' => function () {
+                $cities = ['Dar es Salaam', 'Mwanza', 'Arusha', 'Dodoma', 'Mbeya', 'Morogoro', 'Tanga', 'Zanzibar'];
+                return $cities[array_rand($cities)] . ', Tanzania';
+            },
+
+            'password' => bcrypt('password'), // Default password for all users
+
+
+        ]);
 
         // Assign roles and permissions to random users
         $users->each(function ($user) use ($roles) {
@@ -171,12 +186,63 @@ class DatabaseSeeder extends Seeder
             $this->createUserSkills($user);
         });
 
+        // ======================
+        // 4. CREATE PROJECTS (Tanzania-specific)
+        // ======================
+        $tanzaniaProjects = [
+            [
+                'name' => 'Dar es Salaam Port Expansion',
+                'objective' => 'Expand and modernize the Dar es Salaam port to increase capacity and efficiency',
+                'scope' => 'Construction of new berths, dredging, and installation of modern port equipment',
+                'estimated_time' => '13',
+                'estimated_cost' => 1500000000,
+                'project_manager_id' => $projectManager->id
+            ],
+            [
+                'name' => 'Standard Gauge Railway Project',
+                'objective' => 'Develop a modern railway network connecting Dar es Salaam to neighboring countries',
+                'scope' => 'Construction of railway tracks, stations, and related infrastructure',
+                'estimated_time' => '9',
+                'estimated_cost' => 7000000000,
+                'project_manager_id' => $projectManager->id
+            ],
+            [
+                'name' => 'Rufiji Hydropower Project',
+                'objective' => 'Build a large-scale hydropower plant to increase Tanzania\'s electricity generation capacity',
+                'scope' => 'Dam construction, power plant installation, and transmission lines',
+                'estimated_time' => '15',
+                'estimated_cost' => 3900000000,
+                'project_manager_id' => $projectManager->id
+            ],
+            [
+                'name' => 'Zanzibar Smart City Initiative',
+                'objective' => 'Develop smart city infrastructure in Zanzibar to boost tourism and local economy',
+                'scope' => 'Digital infrastructure, smart utilities, and urban planning',
+                'estimated_time' => '18',
+                'estimated_cost' => 850000000,
+                'project_manager_id' => $projectManager->id
+            ],
+            [
+                'name' => 'Tanzania National Fiber Optic Network',
+                'objective' => 'Expand broadband connectivity across Tanzania',
+                'scope' => 'Laying fiber optic cables across the country',
+                'estimated_time' => '12',
+                'estimated_cost' => 450000000,
+                'project_manager_id' => $projectManager->id
+            ]
+        ];
+
+        foreach ($tanzaniaProjects as $projectData) {
+            Project::create($projectData);
+        }
+
         // Optional: Print seeded users info to console (for development)
         if ($this->command) {
             $this->command->info('Seeded users:');
             $this->command->info('Admin: admin@example.com / password');
             $this->command->info('HR Manager: hr@example.com / password');
             $this->command->info('Project Manager: pm@example.com / password');
+            $this->command->info('Seeded 5 Tanzania-specific projects');
         }
     }
 
@@ -187,28 +253,28 @@ class DatabaseSeeder extends Seeder
     {
         $skills = [
             [
-                'skill_name'         => 'PHP',
-                'proficiency'        => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
-                'years_of_experience'=> rand(1, 10),
-                'description'        => 'Web development with Laravel'
+                'skill_name' => 'PHP',
+                'proficiency' => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
+                'years_of_experience' => rand(1, 10),
+                'description' => 'Web development with Laravel'
             ],
             [
-                'skill_name'         => 'JavaScript',
-                'proficiency'        => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
-                'years_of_experience'=> rand(1, 10),
-                'description'        => 'Frontend development with Vue.js/React'
+                'skill_name' => 'JavaScript',
+                'proficiency' => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
+                'years_of_experience' => rand(1, 10),
+                'description' => 'Frontend development with Vue.js/React'
             ],
             [
-                'skill_name'         => 'MySQL',
-                'proficiency'        => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
-                'years_of_experience'=> rand(1, 8),
-                'description'        => 'Database design and optimization'
+                'skill_name' => 'MySQL',
+                'proficiency' => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
+                'years_of_experience' => rand(1, 8),
+                'description' => 'Database design and optimization'
             ],
             [
-                'skill_name'         => 'Project Management',
-                'proficiency'        => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
-                'years_of_experience'=> rand(1, 5),
-                'description'        => 'Agile project management'
+                'skill_name' => 'Project Management',
+                'proficiency' => ['Beginner', 'Intermediate', 'Advanced'][rand(0, 2)],
+                'years_of_experience' => rand(1, 5),
+                'description' => 'Agile project management'
             ]
         ];
 

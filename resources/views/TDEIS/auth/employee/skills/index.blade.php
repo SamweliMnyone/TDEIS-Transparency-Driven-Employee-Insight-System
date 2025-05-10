@@ -60,11 +60,11 @@
                                             <td>{{ $skill->years_of_experience ? $skill->years_of_experience.' years' : '-' }}</td>
                                             <td>{{ $skill->description ?? '-' }}</td>
                                             <td>
-                                                <button class="btn btn-sm btn-primary" data-toggle="modal" 
+                                                <button class="btn btn-sm btn-primary" data-toggle="modal"
                                                     data-target="#editSkillModal{{ $skill->id }}">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
-                                                <form action="{{ route('employee.skills.destroy', $skill->id) }}" method="POST" 
+                                                <form action="{{ route('employee.skills.destroy', $skill->id) }}" method="POST"
                                                     class="d-inline delete-form">
                                                     @csrf
                                                     @method('DELETE')
@@ -157,7 +157,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Skill Name <span class="text-danger">*</span></label>
-                            <input type="text" name="skill_name" class="form-control" 
+                            <input type="text" name="skill_name" class="form-control"
                                 value="{{ $skill->skill_name }}" required>
                         </div>
                         <div class="form-group">
@@ -171,7 +171,7 @@
                         </div>
                         <div class="form-group">
                             <label>Years of Experience</label>
-                            <input type="number" name="years_of_experience" class="form-control" 
+                            <input type="number" name="years_of_experience" class="form-control"
                                 value="{{ $skill->years_of_experience }}" min="0">
                         </div>
                         <div class="form-group">
